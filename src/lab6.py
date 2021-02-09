@@ -74,7 +74,7 @@ def get_dataset(data_dir: Path,
                 max_words: int,
                 max_token_length: int,
                 batch_size: int,
-                validation_split=0.3
+                validation_split: float,
                 ) -> typing.Tuple[tf.data.Dataset, tf.data.Dataset, typing.List[str]]:
     # make dataset objects using text_dataset_from_directory
     train_dataset: tf.data.Dataset
