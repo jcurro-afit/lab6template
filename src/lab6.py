@@ -85,22 +85,36 @@ def get_dataset(data_dir: Path,
     num_classes = len(categories)
 
     # process the raw text into tokens. remember to remove punctuation
+    # you may want to load your saved vocabulary into the layer here (if a saved vocabulary exists)
     vectorize_layer: TextVectorization
 
-    # determine and save vocabulary
+    # determine and save vocabulary for later use
     if not os.path.exists(vocabulary_filename):
         # get vocabulary
         write_vocabulary(vocabulary_filename=vocabulary_filename, vocabulary=vectorize_layer.get_vocabulary())
     else:
+        # if we didn't already load the vocabulary to the vectorize_layer do it now
         print("reading in saved vocabulary")
         vocabulary = read_vocabulary(vocabulary_filename=vocabulary_filename)
         vectorize_layer.set_vocabulary(vocab=np.asarray(vocabulary))
 
-    # do any mapping to reshape process dataset. For example the output classes need to be one hots
+    # do any other work to process dataset.
+    # For example, you could apply your vectorize layer here on the text input stream
+    # Also  you could process the output classes to be one hots if necessary
+    # Remember at this point you data should be shuffled, batched, scaled, repeated, prefetched, cached or
+    # anything else you want in your pipeline
 
-    # sample the dataset and print the sample as a test
-    sample = next(train_dataset.as_numpy_iterator())
-    print(sample[0].shape, sample[1].shape)
+    # print out a sample to make sure it looks alright
+    sample = next(train_ds.as_numpy_iterator())
+    print(f"Input shape: {sample[0].shape}, Output shape: {sample[1].shape}")
+    print(f"First sample raw input:\n{sample[0][0]}")
+    # if you used an integer encoding on the text we can decode it to get the sentence with our vocabulary
+    vocabulary_list: typing.List[str] = vectorize_layer.get_vocabulary()
+    text_list: typing.List[str] = []
+    for word_index in sample[0][0]:
+        text_list.append(vocabulary_list[word_index])
+    print(f"First sample input decoded:\n{' '.join(text_list)}")
+    print(f"First sample label: {sample[1][0]}")
 
     return train_dataset, validation_dataset, categories
 
